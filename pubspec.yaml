@@ -1,7 +1,6 @@
 name: flutter_mvi
 description: A new Flutter project.
 version: 0.0.1
-homepage:
 
 environment:
   sdk: ">=2.16.0 <3.0.0"
