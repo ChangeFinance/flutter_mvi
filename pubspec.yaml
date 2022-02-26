@@ -1,0 +1,19 @@
+name: flutter_mvi
+description: A new Flutter project.
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: ">=2.16.0 <3.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  rxdart: 0.27.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  test: 1.19.5
+
