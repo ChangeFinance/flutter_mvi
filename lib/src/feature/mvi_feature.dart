@@ -25,6 +25,7 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
     required Actor<State, Effect, Action> actor,
     SideEffectProducer<State, Effect, Action, SideEffect>? sideEffectProducer,
     PostProcessor<State, Effect, Action>? postProcessor,
+    Bootstrapper<Action>? bootstrapper,
   }) {
     _state.add(initialState);
     _bucket <=
@@ -37,6 +38,13 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
                 postProcessor?.invoke(newState, effect, action)?.let((postAction) => actions.add(postAction));
               });
         });
+
+    bootstrapper?.let((boot){
+      _bucket <= boot.invoke().listen((action) {
+        actions.add(action);
+      });
+    });
+
   }
 
   @override

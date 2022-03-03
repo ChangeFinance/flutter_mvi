@@ -13,3 +13,7 @@ abstract class SideEffectProducer<State, Effect, Action, SideEffect> {
 abstract class PostProcessor<State, Effect, Action> {
   Action? invoke(State state, Effect effect, Action action);
 }
+
+abstract class Bootstrapper<Action>{
+  Stream<Action> invoke();
+}
