@@ -49,6 +49,7 @@ class CounterFeature extends MviFeature<CounterState, CounterEffect, CounterActi
           reducer: CounterReducer(),
           actor: CounterActor(repo),
           sideEffectProducer: CounterSideEffectProducer(),
+          bootstrapper: CounterBootstrapper(),
         ) {
     debugPrint('Constructor');
   }
@@ -85,5 +86,12 @@ class CounterSideEffectProducer
   @override
   invoke(state, effect, action) {
     return CounterSideEffect("Action was: $action and effect is: $effect");
+  }
+}
+
+class CounterBootstrapper extends Bootstrapper<CounterAction> {
+  @override
+  Stream<CounterAction> invoke() async* {
+    yield IncrementClick();
   }
 }
