@@ -52,7 +52,7 @@ class HomePage extends BoundWidget<CounterUIState, CounterUIEvent> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          binder.call(PlusClicked());
+          binder.add(PlusClicked());
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
@@ -60,3 +60,15 @@ class HomePage extends BoundWidget<CounterUIState, CounterUIEvent> {
     );
   }
 }
+
+
+class CounterUIState {
+  final int counter;
+  final bool loading;
+
+  CounterUIState({required this.counter, required this.loading});
+}
+
+class CounterUIEvent {}
+
+class PlusClicked extends CounterUIEvent {}
