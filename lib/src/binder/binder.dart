@@ -2,15 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
-import '../utils/disposable.dart';
+import 'package:flutter_mvi/flutter_mvi.dart';
+import 'package:rxdart/rxdart.dart';
 
 abstract class Binder<UiState, UiEvent> {
   final Stream<UiState> Function() transformer;
-  late BuildContext context;
-  Function()? onViewReady;
-
   final DisposableBucket bucket = DisposableBucket();
+  final PublishSubject<UiEvent> _uiEvents = PublishSubject();
+  late BuildContext context;
+
+  StreamSink<UiEvent> get uiEvents => _uiEvents.sink;
 
   Binder(this.transformer);
 
@@ -18,7 +19,23 @@ abstract class Binder<UiState, UiEvent> {
     return StreamBuilder<UiState>(builder: builder, stream: transformer());
   }
 
-  void call(UiEvent event);
+  void bind<T>(Stream<T> stream, {required Function(T value) to}) {
+    bucket <=
+        stream.listen((v) {
+          to.call(v);
+        });
+  }
+
+  void bindUiEventTo<Action>(MviFeature feature, {required Action? Function(UiEvent uiEvent) using}) {
+    bucket <=
+        _uiEvents.listen((uiEvent) {
+          using(uiEvent)?.let((action) {
+            feature <= action;
+          });
+        });
+  }
 
   void dispose() => bucket.dispose();
+
+  get add => uiEvents.add;
 }

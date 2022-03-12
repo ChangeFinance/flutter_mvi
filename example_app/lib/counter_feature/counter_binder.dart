@@ -1,39 +1,28 @@
 import 'package:counter/counter_feature/counter_feature.dart';
+import 'package:counter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
-
-class CounterUIState {
-  final int counter;
-  final bool loading;
-
-  CounterUIState({required this.counter, required this.loading});
-}
-
-class CounterUIEvent {}
-
-class PlusClicked extends CounterUIEvent {}
 
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
 
-  CounterBinder(this.counterFeature)
-      : super(
-          () => counterFeature.state.map((state) => CounterUIState(counter: state.counter, loading: state.loading)),
-        ) {
-    bucket <=
-        counterFeature.sideEffects.listen(
-          (value) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value.message)));
-          },
-        );
-
-    bucket <= counterFeature;
+  CounterBinder(this.counterFeature) : super(stateTransformer(counterFeature)) {
+    bind<CounterSideEffect>(counterFeature.sideEffects, to: sideEffectListener);
+    bindUiEventTo<CounterAction>(counterFeature, using: eventToAction);
   }
 
-  @override
-  void call(CounterUIEvent event) {
-    if (event is PlusClicked) {
-      counterFeature <= (IncrementClick());
+  sideEffectListener(CounterSideEffect effect) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(effect.message)));
+  }
+
+  CounterAction? eventToAction(CounterUIEvent uiEvent) {
+    if (uiEvent is PlusClicked) {
+      return IncrementClick();
     }
+    return null;
   }
+}
+
+Stream<CounterUIState> Function() stateTransformer(CounterFeature counterFeature) {
+  return () => counterFeature.state.map((state) => CounterUIState(counter: state.counter, loading: state.loading));
 }

@@ -21,7 +21,6 @@ class BoundWidgetState<UiState, UiEvent> extends State<BoundWidget> {
   @override
   Widget build(BuildContext context) {
     widget.binder.context = context;
-    widget.binder.onViewReady?.call();
     return widget.builder(context, widget.binder);
   }
 
