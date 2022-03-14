@@ -2,26 +2,26 @@ import 'package:flutter_mvi/src/element/elements.dart';
 import 'package:flutter_mvi/src/feature/mvi_feature.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:test/test.dart';
 
 import 'mvi_feature_test.mocks.dart';
 
-@GenerateMocks([TestActor, TestReducer])
+@GenerateMocks([TestActor, TestReducer, TestSideEffectProducer, TestPostProcessor, TestBootstrapper])
 void main() {
-  when(actor.invoke(any, any)).thenAnswer((_) => PublishSubject<Effect>());
-  when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
-
-  group('vmi feature', () {
+  group('simple mvi feature', () {
     test('emit initial state', () {
-      final feature = TestFeature();
+      final feature = SimpleFeature();
       feature.state.listen(expectAsync1((State state) {
         expect(state, initialState);
       }, count: 1));
     });
 
     test('call actor', () async {
-      final feature = TestFeature();
+      when(actor.invoke(any, any)).thenAnswer((_) async* {
+        yield Effect();
+      });
+      when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
+      final feature = SimpleFeature();
       final action = Action();
       feature <= action;
       await Future.delayed(Duration(milliseconds: 10));
@@ -29,39 +29,70 @@ void main() {
     });
 
     test('call reducer', () async {
-      final feature = TestFeature();
+      final effect = Effect();
+      when(actor.invoke(any, any)).thenAnswer((_) async* {
+        yield effect;
+      });
+      final feature = SimpleFeature();
       final action = Action();
       feature <= action;
       await Future.delayed(Duration(milliseconds: 10));
-      verify(reducer.invoke(initialState, Effect()));
+      verify(reducer.invoke(initialState, effect));
     });
+  });
 
+  group('full mvi feature', () {
+    test('call SideEffectProducer', () async {
+      final effect = Effect();
+      when(actor.invoke(any, any)).thenAnswer((_) async* {
+        yield effect;
+      });
+      when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
+      when(sideEffectProducer.invoke(any, any, any)).thenReturn(SideEffect());
+      when(postProcessor.invoke(any, any, any)).thenReturn(Action());
+      final feature = FullFeature();
+      final action = Action();
+      feature <= action;
+      await Future.delayed(Duration(milliseconds: 10));
+      verify(sideEffectProducer.invoke(State(2), effect, action));
+    });
 
   });
 }
 
 final reducer = MockTestReducer();
 final actor = MockTestActor();
-final testActor = TestActor();
+final sideEffectProducer = MockTestSideEffectProducer();
+final postProcessor = MockTestPostProcessor();
+final bootstrapper = MockTestBootstrapper();
+
 final initialState = State(1);
 
-class TestFeature extends MviFeature<State, Effect, Action, SideEffect> {
-  TestFeature() : super(initialState: initialState, reducer: reducer, actor: actor);
+class SimpleFeature extends MviFeature<State, Effect, Action, SideEffect> {
+  SimpleFeature() : super(initialState: initialState, reducer: reducer, actor: actor);
 }
 
-class TestReducer implements Reducer<State, Effect> {
-  @override
-  State invoke(State state, Effect effect) {
-    return State(2);
-  }
+class FullFeature extends MviFeature<State, Effect, Action, SideEffect> {
+  FullFeature()
+      : super(
+          initialState: initialState,
+          reducer: reducer,
+          actor: actor,
+          sideEffectProducer: sideEffectProducer,
+          // postProcessor: postProcessor,
+        // bootstrapper: bootstrapper,
+        );
 }
 
-class TestActor implements Actor<State, Effect, Action> {
-  @override
-  Stream<Effect> invoke(State state, Action action) async* {
-    yield Effect();
-  }
-}
+abstract class TestReducer implements Reducer<State, Effect> {}
+
+abstract class TestActor implements Actor<State, Effect, Action> {}
+
+abstract class TestSideEffectProducer implements SideEffectProducer<State, Effect, Action, SideEffect> {}
+
+abstract class TestPostProcessor implements PostProcessor<State, Effect, Action> {}
+
+abstract class TestBootstrapper implements Bootstrapper<Action> {}
 
 class Action {}
 
