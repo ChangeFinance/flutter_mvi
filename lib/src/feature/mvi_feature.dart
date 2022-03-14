@@ -39,12 +39,12 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
               });
         });
 
-    bootstrapper?.let((boot){
-      _bucket <= boot.invoke().listen((action) {
-        actions.add(action);
-      });
+    bootstrapper?.let((boot) {
+      _bucket <=
+          boot.invoke().listen((action) {
+            actions.add(action);
+          });
     });
-
   }
 
   @override

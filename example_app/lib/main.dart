@@ -61,7 +61,6 @@ class HomePage extends BoundWidget<CounterUIState, CounterUIEvent> {
   }
 }
 
-
 class CounterUIState {
   final int counter;
   final bool loading;
