@@ -86,6 +86,31 @@ void main() {
       await Future.delayed(Duration(milliseconds: 10));
       verify(postProcessor.invoke(State(2), effect, action));
     });
+
+    test('call Bootstrapper', () async {
+      final effect = Effect();
+      final action = Action();
+      when(actor.invoke(initialState, action)).thenAnswer((_) async* {
+        yield effect;
+      });
+      when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
+
+      when(postProcessor.invoke(any, any, any)).thenReturn(null);
+
+      when(bootstrapper.invoke()).thenAnswer((_) async* {
+        yield action;
+      });
+
+      TestableFeature(
+        initialState: initialState,
+        reducer: reducer,
+        actor: actor,
+        bootstrapper: bootstrapper
+      );
+      await Future.delayed(Duration(milliseconds: 10));
+      verify(bootstrapper.invoke());
+      // verify(actor.invoke(initialState, action));
+    });
   });
 }
 
