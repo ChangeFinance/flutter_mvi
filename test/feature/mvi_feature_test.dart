@@ -34,8 +34,7 @@ void main() {
         yield effect;
       });
       final feature = SimpleFeature();
-      final action = Action();
-      feature <= action;
+      feature <= Action();
       await Future.delayed(Duration(milliseconds: 10));
       verify(reducer.invoke(initialState, effect));
     });
@@ -109,7 +108,6 @@ void main() {
       );
       await Future.delayed(Duration(milliseconds: 10));
       verify(bootstrapper.invoke());
-      // verify(actor.invoke(initialState, action));
     });
   });
 }
