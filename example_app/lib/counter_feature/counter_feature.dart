@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'counter_repo.dart';
 
@@ -73,11 +74,20 @@ class CounterActor extends Actor<CounterState, CounterEffect, CounterAction> {
 
   CounterActor(this._repo);
 
+  final effects = PublishSubject<CounterEffect>();
+
   @override
-  Stream<CounterEffect> invoke(CounterState state, CounterAction action) async* {
-    yield Loading();
+  invoke(CounterState state, CounterAction action) {
+    if (action is IncrementClick) {
+      _onIncrement();
+    }
+    return effects;
+  }
+
+  _onIncrement() async {
+    effects.add(Loading());
     final result = await _repo.getInt();
-    yield Increment(result);
+    effects.add(Increment(result));
   }
 }
 

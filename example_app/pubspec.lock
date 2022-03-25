@@ -117,7 +117,7 @@ packages:
     source: hosted
     version: "1.8.0"
   rxdart:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: rxdart
       url: "https://pub.dartlang.org"
@@ -186,4 +186,4 @@ packages:
     version: "2.1.1"
 sdks:
   dart: ">=2.16.0 <3.0.0"
-  flutter: ">=1.17.0"
+  flutter: ">=2.10.0"
