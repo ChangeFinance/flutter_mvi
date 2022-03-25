@@ -24,8 +24,7 @@ void main() {
       final feature = SimpleFeature();
       final action = Action();
       feature <= action;
-      await Future.delayed(Duration(milliseconds: 10));
-      verify(actor.invoke(initialState, action));
+      await untilCalled(actor.invoke(initialState, action));
     });
 
     test('call reducer', () async {
@@ -33,10 +32,11 @@ void main() {
       when(actor.invoke(any, any)).thenAnswer((_) async* {
         yield effect;
       });
+
+      when(reducer.invoke(any, any)).thenReturn(initialState);
       final feature = SimpleFeature();
       feature <= Action();
-      await Future.delayed(Duration(milliseconds: 10));
-      verify(reducer.invoke(initialState, effect));
+      await untilCalled(reducer.invoke(initialState, effect));
     });
   });
 
@@ -59,8 +59,7 @@ void main() {
       final action = Action();
       feature <= action;
 
-      await Future.delayed(Duration(milliseconds: 10));
-      verify(sideEffectProducer.invoke(State(2), effect, action));
+      await untilCalled(sideEffectProducer.invoke(State(2), effect, action));
     });
 
     test('call PostProcessor', () async {
@@ -82,8 +81,7 @@ void main() {
 
       feature <= action;
 
-      await Future.delayed(Duration(milliseconds: 10));
-      verify(postProcessor.invoke(State(2), effect, action));
+      await untilCalled(postProcessor.invoke(State(2), effect, action));
     });
 
     test('call Bootstrapper', () async {
@@ -100,14 +98,8 @@ void main() {
         yield action;
       });
 
-      TestableFeature(
-        initialState: initialState,
-        reducer: reducer,
-        actor: actor,
-        bootstrapper: bootstrapper
-      );
-      await Future.delayed(Duration(milliseconds: 10));
-      verify(bootstrapper.invoke());
+      TestableFeature(initialState: initialState, reducer: reducer, actor: actor, bootstrapper: bootstrapper);
+      await untilCalled(bootstrapper.invoke());
     });
   });
 }
