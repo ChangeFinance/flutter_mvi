@@ -17,19 +17,19 @@ void main() {
     });
 
     test('call actor', () async {
-      when(actor.invoke(any, any)).thenAnswer((_) async* {
+      when(actor.processAction(any, any)).thenAnswer((_) async* {
         yield Effect();
       });
       when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
       final feature = SimpleFeature();
       final action = Action();
       feature <= action;
-      await untilCalled(actor.invoke(initialState, action));
+      await untilCalled(actor.processAction(initialState, action));
     });
 
     test('call reducer', () async {
       final effect = Effect();
-      when(actor.invoke(any, any)).thenAnswer((_) async* {
+      when(actor.processAction(any, any)).thenAnswer((_) async* {
         yield effect;
       });
 
@@ -38,12 +38,28 @@ void main() {
       feature <= Action();
       await untilCalled(reducer.invoke(initialState, effect));
     });
+
+    test('call reducer twice', () async {
+      when(reducer.invoke(any, any)).thenReturn(initialState);
+
+      final feature = TestableFeature(
+        initialState: initialState,
+        reducer: reducer,
+        actor: TestBypassActor(),
+      );
+
+      feature <= Action();
+      feature <= Action();
+
+      await Future.delayed(Duration(milliseconds: 100));
+      verify(reducer.invoke(any, any)).called(2);
+    });
   });
 
   group('full mvi feature', () {
     test('call SideEffectProducer', () async {
       final effect = Effect();
-      when(actor.invoke(any, any)).thenAnswer((_) async* {
+      when(actor.processAction(any, any)).thenAnswer((_) async* {
         yield effect;
       });
       when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
@@ -65,7 +81,7 @@ void main() {
     test('call PostProcessor', () async {
       final effect = Effect();
       final action = Action();
-      when(actor.invoke(initialState, action)).thenAnswer((_) async* {
+      when(actor.processAction(initialState, action)).thenAnswer((_) async* {
         yield effect;
       });
       when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
@@ -87,7 +103,7 @@ void main() {
     test('call Bootstrapper', () async {
       final effect = Effect();
       final action = Action();
-      when(actor.invoke(initialState, action)).thenAnswer((_) async* {
+      when(actor.processAction(initialState, action)).thenAnswer((_) async* {
         yield effect;
       });
       when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
@@ -137,6 +153,14 @@ class TestableFeature extends MviFeature<State, Effect, Action, SideEffect> {
 abstract class TestReducer implements Reducer<State, Effect> {}
 
 abstract class TestActor implements Actor<State, Effect, Action> {}
+
+class TestBypassActor extends Actor<State, Effect, Action> {
+  @override
+  processAction(State state, Action action) {
+    super.processAction(state, action);
+    emit(Effect());
+  }
+}
 
 abstract class TestSideEffectProducer implements SideEffectProducer<State, Effect, Action, SideEffect> {}
 
