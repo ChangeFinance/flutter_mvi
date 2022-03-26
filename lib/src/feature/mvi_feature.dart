@@ -36,7 +36,6 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
 
           sideEffectProducer?.invoke(newState, value.effect, value.action)?.let((sideEffect) => _sideEffects.add(sideEffect));
           postProcessor?.invoke(newState, value.effect, value.action)?.let((postAction) => actions.add(postAction));
-          print("$newState ${value.action} ${value.effect}");
         });
 
     _bucket <=
