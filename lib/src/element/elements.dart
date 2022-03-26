@@ -17,9 +17,9 @@ abstract class Bootstrapper<Action> {
 }
 
 abstract class Actor<State, Effect, Action> {
-  final PublishSubject<Pair<Action, Effect>> _effects = PublishSubject();
+  final PublishSubject<ActionEffect<Action, Effect>> _effects = PublishSubject();
 
-  Stream<Pair<Action, Effect>> get effects => _effects.stream;
+  Stream<ActionEffect<Action, Effect>> get effects => _effects.stream;
 
   Action? _currentAction;
 
@@ -27,14 +27,14 @@ abstract class Actor<State, Effect, Action> {
     _currentAction = action;
   }
 
-  emit(Effect e) {
-    _effects.add(Pair(_currentAction!, e));
+  emit(Effect effect) {
+    _effects.add(ActionEffect(_currentAction!, effect));
   }
 }
 
-class Pair<A, B> {
-  final A a;
-  final B b;
+class ActionEffect<A, E> {
+  final A action;
+  final E effect;
 
-  Pair(this.a, this.b);
+  ActionEffect(this.action, this.effect);
 }
