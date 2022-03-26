@@ -1,5 +1,6 @@
 import 'package:flutter_mvi/src/element/elements.dart';
 import 'package:flutter_mvi/src/feature/mvi_feature.dart';
+import 'package:flutter_mvi/src/utils/action_effect_pair.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';

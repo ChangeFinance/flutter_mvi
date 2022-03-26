@@ -1,3 +1,4 @@
+import 'package:flutter_mvi/src/utils/action_effect_pair.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class Reducer<State, Effect> {
@@ -32,9 +33,3 @@ abstract class Actor<State, Effect, Action> {
   }
 }
 
-class ActionEffect<A, E> {
-  final A action;
-  final E effect;
-
-  ActionEffect(this.action, this.effect);
-}
