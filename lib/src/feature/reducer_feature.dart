@@ -10,7 +10,7 @@ abstract class ReducerFeature<State, Effect, SideEffect> extends MviFeature<Stat
 
 class BypassActor<State, Effect> extends Actor<State, Effect, Effect> {
   @override
-  Stream<Effect> processAction(State state, Effect action) async* {
+  Stream<Effect> invoke(State state, Effect action) async* {
     yield action;
   }
 }

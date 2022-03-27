@@ -74,17 +74,16 @@ class CounterActor extends Actor<CounterState, CounterEffect, CounterAction> {
   CounterActor(this._repo);
 
   @override
-  processAction(CounterState state, CounterAction action) {
-    super.processAction(state, action);
+  Stream<CounterEffect> invoke(CounterState state, CounterAction action) async* {
     if (action is IncrementClick) {
-      _onIncrement();
+      yield* _onIncrement();
     }
   }
 
-  _onIncrement() async {
-    emit(Loading());
+  Stream<CounterEffect> _onIncrement() async* {
+    yield (Loading());
     final result = await _repo.getInt();
-    emit(Increment(result));
+    yield (Increment(result));
   }
 }
 

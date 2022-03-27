@@ -1,9 +1,7 @@
 import 'package:flutter_mvi/src/element/elements.dart';
 import 'package:flutter_mvi/src/feature/mvi_feature.dart';
-import 'package:flutter_mvi/src/utils/action_effect_pair.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:test/test.dart';
 
 import 'mvi_feature_test.mocks.dart';
@@ -14,12 +12,6 @@ void main() {
     test('emit initial state', () {
       final reducer = MockTestReducer();
       final actor = MockTestActor();
-
-      when(actor.effects).thenAnswer((_) => PublishSubject());
-      when(actor.processAction(any, any)).thenReturn(null);
-
-      when(reducer.invoke(any, any)).thenAnswer((_) => initialState);
-
       final feature = TestableFeature(initialState: initialState, reducer: reducer, actor: actor);
       feature.state.listen(expectAsync1((State state) {
         expect(state, initialState);
@@ -29,25 +21,32 @@ void main() {
     test('call actor', () async {
       final reducer = MockTestReducer();
       final actor = MockTestActor();
-      final action = Action();
-
-      when(actor.effects).thenAnswer((_) => PublishSubject());
-      when(actor.processAction(any, any)).thenReturn(null);
-      when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
-
       final feature = TestableFeature(initialState: initialState, reducer: reducer, actor: actor);
+
+      when(actor.invoke(any, any)).thenAnswer((_) async* {
+        yield Effect();
+      });
+      when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
+      final action = Action();
       feature <= action;
-      await untilCalled(actor.processAction(initialState, action));
+      await Future.delayed(Duration(milliseconds: 10));
+      verify(actor.invoke(initialState, action));
+      await untilCalled(actor.invoke(initialState, action));
     });
 
     test('call reducer', () async {
       final reducer = MockTestReducer();
-      final effect = Effect();
-
-      final actor = TestBypassActor(effect: effect);
-      when(reducer.invoke(any, any)).thenReturn(initialState);
+      final actor = MockTestActor();
       final feature = TestableFeature(initialState: initialState, reducer: reducer, actor: actor);
+      final effect = Effect();
+      when(actor.invoke(any, any)).thenAnswer((_) async* {
+        yield effect;
+      });
+
+      when(reducer.invoke(any, any)).thenReturn(initialState);
       feature <= Action();
+      await Future.delayed(Duration(milliseconds: 10));
+      verify(reducer.invoke(initialState, effect));
       await untilCalled(reducer.invoke(initialState, effect));
     });
 
@@ -75,13 +74,9 @@ void main() {
       final actor = MockTestActor();
       final sideEffectProducer = MockTestSideEffectProducer();
       final effect = Effect();
-      final action = Action();
-
-      when(actor.effects).thenAnswer((_) async* {
-        yield ActionEffect(action, effect);
+      when(actor.invoke(any, any)).thenAnswer((_) async* {
+        yield effect;
       });
-      when(actor.processAction(any, any)).thenReturn(null);
-
       when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
       when(sideEffectProducer.invoke(any, any, any)).thenReturn(SideEffect());
 
@@ -92,8 +87,11 @@ void main() {
         sideEffectProducer: sideEffectProducer,
       );
 
+      final action = Action();
       feature <= action;
 
+      await Future.delayed(Duration(milliseconds: 10));
+      verify(sideEffectProducer.invoke(State(2), effect, action));
       await untilCalled(sideEffectProducer.invoke(State(2), effect, action));
     });
 
@@ -101,13 +99,11 @@ void main() {
       final reducer = MockTestReducer();
       final actor = MockTestActor();
       final postProcessor = MockTestPostProcessor();
-
       final effect = Effect();
       final action = Action();
-      when(actor.effects).thenAnswer((_) async* {
-        yield ActionEffect(action, effect);
+      when(actor.invoke(initialState, action)).thenAnswer((_) async* {
+        yield effect;
       });
-      when(actor.processAction(any, any)).thenReturn(null);
       when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
 
       when(postProcessor.invoke(any, any, any)).thenReturn(null);
@@ -121,6 +117,8 @@ void main() {
 
       feature <= action;
 
+      await Future.delayed(Duration(milliseconds: 10));
+      verify(postProcessor.invoke(State(2), effect, action));
       await untilCalled(postProcessor.invoke(State(2), effect, action));
     });
 
@@ -131,10 +129,9 @@ void main() {
       final bootstrapper = MockTestBootstrapper();
       final effect = Effect();
       final action = Action();
-      when(actor.effects).thenAnswer((_) async* {
-        yield ActionEffect(action, effect);
+      when(actor.invoke(initialState, action)).thenAnswer((_) async* {
+        yield effect;
       });
-      when(actor.processAction(any, any)).thenReturn(null);
       when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
 
       when(postProcessor.invoke(any, any, any)).thenReturn(null);
@@ -143,6 +140,9 @@ void main() {
         yield action;
       });
 
+      TestableFeature(initialState: initialState, reducer: reducer, actor: actor, bootstrapper: bootstrapper);
+      await Future.delayed(Duration(milliseconds: 10));
+      verify(bootstrapper.invoke());
       TestableFeature(initialState: initialState, reducer: reducer, actor: actor, bootstrapper: bootstrapper);
       await untilCalled(bootstrapper.invoke());
     });
@@ -173,20 +173,6 @@ abstract class TestReducer implements Reducer<State, Effect> {}
 
 abstract class TestActor implements Actor<State, Effect, Action> {}
 
-class TestBypassActor extends Actor<State, Effect, Action> {
-  Effect? _effect;
-
-  TestBypassActor({Effect? effect = null}) {
-    _effect = effect;
-  }
-
-  @override
-  processAction(State state, Action action) {
-    super.processAction(state, action);
-    emit(_effect == null ? Effect() : _effect!);
-  }
-}
-
 abstract class TestSideEffectProducer implements SideEffectProducer<State, Effect, Action, SideEffect> {}
 
 abstract class TestPostProcessor implements PostProcessor<State, Effect, Action> {}
@@ -214,5 +200,12 @@ class State {
   @override
   String toString() {
     return super.toString();
+  }
+}
+
+class TestBypassActor extends Actor<State, Effect, Action> {
+  @override
+  Stream<Effect> invoke(State state, Action action) async* {
+    yield (Effect());
   }
 }
