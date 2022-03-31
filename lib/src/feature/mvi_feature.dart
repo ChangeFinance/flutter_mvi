@@ -28,23 +28,23 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
     Bootstrapper<Action>? bootstrapper,
   }) {
     _state.add(initialState);
+
     _bucket <=
         _actions.listen((action) {
-          _bucket <=
-              actor.invoke(_state.value, action).listen((effect) {
-                final newState = reducer.invoke(_state.value, effect).let((nSate) => _state.add(nSate));
-
-                sideEffectProducer?.invoke(newState, effect, action)?.let((sideEffect) => _sideEffects.add(sideEffect));
-                postProcessor?.invoke(newState, effect, action)?.let((postAction) => actions.add(postAction));
-              });
+         _bucket <= actor.invoke(_state.value, action).listen((effect) {
+            final newState = reducer.invoke(_state.value, effect);
+            _state.add(newState);
+            sideEffectProducer?.invoke(newState, effect, action)?.let((sideEffect) => _sideEffects.add(sideEffect));
+            postProcessor?.invoke(newState, effect, action)?.let((postAction) => actions.add(postAction));
+          });
         });
 
-    bootstrapper?.let((boot){
-      _bucket <= boot.invoke().listen((action) {
-        actions.add(action);
-      });
+    bootstrapper?.let((boot) {
+      _bucket <=
+          boot.invoke().listen((action) {
+            actions.add(action);
+          });
     });
-
   }
 
   @override
