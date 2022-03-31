@@ -30,8 +30,8 @@ class CounterFeature extends MviFeature<CounterState, CounterEffect, CounterActi
   CounterFeature(CounterRepo repo)  
       : super(  
           initialState: CounterState(),  
-		  reducer: CounterReducer(),  
-		  actor: CounterActor(repo),  
+	  reducer: CounterReducer(),  
+	  actor: CounterActor(repo),  
   );  
 }
 ```
