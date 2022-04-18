@@ -28,7 +28,7 @@ Mvi consists of several simple element. Each element does only **one** job:
 In general **Actor** does all the heavy lifting (calling repositories, apis) everything that needs outer world communication or asynchronous tasks. All other elements are **synchronous**.
 
 Simple feature with actor : 
-```
+```dart
 class CounterFeature extends MviFeature<CounterState, CounterEffect, CounterAction, CounterSideEffect> {  
   CounterFeature(CounterRepo repo)  
       : super(  
@@ -58,7 +58,7 @@ Bindings **to** feature are done with mapping UiEvents to feature actions
 
 Example bider : 
 
-```
+```dart
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {  
   CounterFeature counterFeature;  
   
