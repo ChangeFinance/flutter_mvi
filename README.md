@@ -3,6 +3,9 @@
 Mvi state management implementation for dart/flutter projects.
 Easily extendable approach based on composition, use only what you need.
 
+![Mvi data flow ](https://user-images.githubusercontent.com/841716/163852339-85e684ea-d87f-4711-897d-9dd20ae212b4.png)
+
+
 ### Building blocks and terms
 
 Mvi consists of several simple element. Each element does only **one** job:
