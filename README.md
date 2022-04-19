@@ -3,8 +3,7 @@
 Mvi state management implementation for dart/flutter projects.
 Easily extendable approach based on composition, use only what you need.
 
-<img src="https://user-images.githubusercontent.com/841716/163852339-85e684ea-d87f-4711-897d-9dd20ae212b4.png" width="700" height="700">
-
+<img src="https://user-images.githubusercontent.com/841716/163926194-edc7fb58-0e99-4901-a431-8f6b8cbcb74e.png" width="700" height="550">
 
 
 ### Building blocks and terms
