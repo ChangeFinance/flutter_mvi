@@ -1,17 +1,17 @@
 import '../element/elements.dart';
 import 'mvi_feature.dart';
 
-abstract class ReducerFeature<State, Effect, SideEffect> extends MviFeature<State, Effect, Effect, SideEffect> {
+abstract class ReducerFeature<State, Action, SideEffect> extends MviFeature<State, Action, Action, SideEffect> {
   ReducerFeature({
     required State initialState,
-    required Reducer<State, Effect> reducer,
-    SideEffectProducer<State, Effect, Effect, SideEffect>? sideEffectProducer,
+    required Reducer<State, Action> reducer,
+    SideEffectProducer<State, Action, Action, SideEffect>? sideEffectProducer,
   }) : super(initialState: initialState, reducer: reducer, actor: BypassActor());
 }
 
-class BypassActor<State, Effect> extends Actor<State, Effect, Effect> {
+class BypassActor<State, Action> extends Actor<State, Action, Action> {
   @override
-  Stream<Effect> invoke(State state, Effect action) async* {
+  Stream<Action> invoke(State state, Action action) async* {
     yield action;
   }
 }
