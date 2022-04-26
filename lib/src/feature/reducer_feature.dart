@@ -5,6 +5,7 @@ abstract class ReducerFeature<State, Effect, SideEffect> extends MviFeature<Stat
   ReducerFeature({
     required State initialState,
     required Reducer<State, Effect> reducer,
+    SideEffectProducer<State, Effect, Effect, SideEffect>? sideEffectProducer,
   }) : super(initialState: initialState, reducer: reducer, actor: BypassActor());
 }
 
