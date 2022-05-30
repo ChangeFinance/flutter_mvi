@@ -18,12 +18,12 @@ abstract class Bootstrapper<Action> {
 
 abstract class Actor<State, Effect, Action> implements Disposable{
 
-  final DisposableBucket _bucket = DisposableBucket();
+  final DisposableBucket bucket = DisposableBucket();
 
   Stream<Effect> invoke(State state, Action action);
 
   @override
   void dispose() {
-    _bucket.dispose();
+    bucket.dispose();
   }
 }
