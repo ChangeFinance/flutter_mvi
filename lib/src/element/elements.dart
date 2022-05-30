@@ -1,3 +1,5 @@
+import '../utils/disposable.dart';
+
 abstract class Reducer<State, Effect> {
   State invoke(State state, Effect effect);
 }
@@ -14,6 +16,14 @@ abstract class Bootstrapper<Action> {
   Stream<Action> invoke();
 }
 
-abstract class Actor<State, Effect, Action> {
+abstract class Actor<State, Effect, Action> implements Disposable{
+
+  final DisposableBucket _bucket = DisposableBucket();
+
   Stream<Effect> invoke(State state, Action action);
+
+  @override
+  void dispose() {
+    _bucket.dispose();
+  }
 }
