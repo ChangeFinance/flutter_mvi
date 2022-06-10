@@ -23,6 +23,10 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   }
 }
 
-Stream<CounterUIState> Function() stateTransformer(CounterFeature counterFeature) {
-  return () => counterFeature.state.map((state) => CounterUIState(counter: state.counter, loading: state.loading));
+Stream<CounterUIState> Function(BuildContext context) stateTransformer(CounterFeature counterFeature) {
+  return (context) => counterFeature.state.map((state) {
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.toString())));
+    return CounterUIState(counter: state.counter, loading: state.loading);
+  });
 }
