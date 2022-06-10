@@ -6,7 +6,7 @@ import 'package:flutter_mvi/flutter_mvi.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class Binder<UiState, UiEvent> {
-  final Stream<UiState> Function() transformer;
+  final Stream<UiState> Function(BuildContext context) transformer;
   final DisposableBucket bucket = DisposableBucket();
   final PublishSubject<UiEvent> _uiEvents = PublishSubject();
   late BuildContext context;
@@ -16,7 +16,7 @@ abstract class Binder<UiState, UiEvent> {
   Binder(this.transformer);
 
   Widget stateBuilder(AsyncWidgetBuilder<UiState> builder) {
-    return StreamBuilder<UiState>(builder: builder, stream: transformer());
+    return StreamBuilder<UiState>(builder: builder, stream: transformer(context));
   }
 
   void bind<T>(Stream<T> stream, {required Function(T value) to}) {
