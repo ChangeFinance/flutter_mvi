@@ -41,7 +41,7 @@ class CounterFeature extends MviFeature<CounterState, CounterEffect, CounterActi
 
 ## Binder
 
-Bider is a class that connects feature or multiple features to Widget.
+Binder is a class that connects feature or multiple features to Widget.
 Binding is made both ways, **to** feature and **form** feature.
 
 Bindings **from** feature to UI are made with *feature state* transforming to UiState used by widget 
