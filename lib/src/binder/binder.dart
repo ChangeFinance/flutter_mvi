@@ -25,6 +25,7 @@ abstract class Binder<UiState, UiEvent> {
   }
 
   void bindUiEventTo<Action>(MviFeature feature, {required Action? Function(UiEvent uiEvent) using}) {
+    bucket <= feature;
     bucket <=
         _uiEvents.listen((uiEvent) {
           using(uiEvent)?.let((action) {
