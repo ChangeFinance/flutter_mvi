@@ -11,8 +11,6 @@ abstract class Binder<UiState, UiEvent> {
   final PublishSubject<UiEvent> _uiEvents = PublishSubject();
   late BuildContext context;
 
-  StreamSink<UiEvent> get uiEvents => _uiEvents.sink;
-
   Binder(this.transformer);
 
   Widget stateBuilder(AsyncWidgetBuilder<UiState> builder) {
@@ -37,5 +35,5 @@ abstract class Binder<UiState, UiEvent> {
 
   void dispose() => bucket.dispose();
 
-  get add => uiEvents.add;
+  get add => _uiEvents.sink.add;
 }
