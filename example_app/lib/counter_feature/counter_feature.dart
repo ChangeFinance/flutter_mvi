@@ -26,6 +26,8 @@ class Bootstrap extends CounterAction {}
 
 class CounterEffect {}
 
+class NavigateEffect extends CounterEffect {}
+
 class Increment extends CounterEffect {
   final int result;
 
@@ -76,9 +78,9 @@ class CounterFeature extends MviFeature<CounterState, CounterEffect, CounterActi
 class CounterReducer extends Reducer<CounterState, CounterEffect> {
   @override
   CounterState invoke(CounterState state, CounterEffect effect) {
-    if (effect is Increment) {
-      return CounterState(counter: state.counter + effect.result);
-    }
+    // if (effect is Increment) {
+    //   return CounterState(counter: state.counter + effect.result);
+    // }
     if (effect is Loading) {
       return CounterState(loading: true, counter: state.counter);
     }
@@ -98,7 +100,8 @@ class CounterActor extends Actor<CounterState, CounterEffect, CounterAction> {
   @override
   Stream<CounterEffect> invoke(CounterState state, CounterAction action) async* {
     if (action is IncrementClick) {
-      yield* _onIncrement();
+      // yield* _onIncrement();
+      yield NavigateEffect();
     }
 
     if (action is Bootstrap) {
@@ -108,7 +111,7 @@ class CounterActor extends Actor<CounterState, CounterEffect, CounterAction> {
 
   Stream<CounterEffect> _getTickChanges() {
     return _counterService.counterStream.map((value) {
-      print("COUNTER SERVICE SUBS!");
+      print("COUNTER SERVICE TICK! $value");
       return SetCount(value);
     });
   }
@@ -124,7 +127,9 @@ class CounterSideEffectProducer
     extends SideEffectProducer<CounterState, CounterEffect, CounterAction, CounterSideEffect> {
   @override
   invoke(state, effect, action) {
-    return CounterNavigateSideEffect();
+    if (effect is NavigateEffect) {
+      return CounterNavigateSideEffect();
+    }
   }
 }
 

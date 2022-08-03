@@ -29,4 +29,14 @@ class BoundWidgetState<UiState, UiEvent> extends State<BoundWidget> {
     widget.binder.dispose();
     super.dispose();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void initState(){
+    super.initState();
+  }
 }

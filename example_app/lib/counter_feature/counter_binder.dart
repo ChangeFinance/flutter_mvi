@@ -3,6 +3,8 @@ import 'package:counter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 
+import 'BlankScreen.dart';
+
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
 
@@ -14,6 +16,9 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   sideEffectListener(CounterSideEffect effect) {
     // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(effect.message)));
 
+    Navigator.push<dynamic>(context, MaterialPageRoute<dynamic>(builder: (BuildContext context) {
+      return BlankScreen();
+    }));
   }
 
   CounterAction? eventToAction(CounterUIEvent uiEvent) {
