@@ -3,7 +3,7 @@ import 'package:counter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 
-import 'BlankScreen.dart';
+import 'blank_screen.dart';
 
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
