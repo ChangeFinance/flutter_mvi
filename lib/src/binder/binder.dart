@@ -17,11 +17,14 @@ abstract class Binder<UiState, UiEvent> {
     return StreamBuilder<UiState>(builder: builder, stream: transformer(context));
   }
 
-  void bind<T>(Stream<T> stream, {required Function(T value) to}) {
-    bucket <=
-        stream.listen((v) {
-          to.call(v);
-        });
+  void bind<T>(MviFeature feature, {Function(T value)? to}) {
+    bucket <= feature;
+    to?.let((func) {
+      bucket <=
+          feature.sideEffects.listen((v) {
+            func.call(v);
+          });
+    });
   }
 
   void bindUiEventTo<Action>(MviFeature feature, {required Action? Function(UiEvent uiEvent) using}) {
