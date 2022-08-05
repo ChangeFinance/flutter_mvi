@@ -9,7 +9,7 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
 
   CounterBinder(this.counterFeature) : super(stateTransformer(counterFeature)) {
-    bind<CounterSideEffect>(counterFeature.sideEffects, to: sideEffectListener);
+    bind<CounterSideEffect>(counterFeature, to: sideEffectListener);
     bindUiEventTo<CounterAction>(counterFeature, using: eventToAction);
   }
 
