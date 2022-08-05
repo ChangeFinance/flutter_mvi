@@ -27,6 +27,11 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
     }
     return null;
   }
+
+  @override
+  void dispose(){
+    super.dispose();
+  }
 }
 
 Stream<CounterUIState> Function(BuildContext context) stateTransformer(CounterFeature counterFeature) {
