@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:rxdart/rxdart.dart';
+
 import '../utils/disposable.dart';
 
 /// Invoked on each new effect.
@@ -32,14 +36,18 @@ abstract class Bootstrapper<Action> {
   Stream<Action> invoke();
 }
 
-/// Invoked on initialisation, produces actions.
+/// Listened on initialisation, produces actions.
 ///
 /// Used for listening to streams and disposing subscriptions.
-abstract class StreamListener<Action>  implements Disposable{
+abstract class StreamListener<Action> implements Disposable {
+  Stream<Action> get actions => _actions.stream;
+  final PublishSubject<Action> _actions = PublishSubject();
 
   final DisposableBucket bucket = DisposableBucket();
 
-  Stream<Action> invoke();
+  void addAction(Action action) {
+    _actions.add(action);
+  }
 
   @override
   void dispose() {
@@ -48,8 +56,7 @@ abstract class StreamListener<Action>  implements Disposable{
 }
 
 /// Invoked on every action, produces effects that are consumed by all other element.
-abstract class Actor<State, Effect, Action> implements Disposable{
-
+abstract class Actor<State, Effect, Action> implements Disposable {
   @Deprecated('Use [StreamObserver] for stream listening')
   final DisposableBucket bucket = DisposableBucket();
 
