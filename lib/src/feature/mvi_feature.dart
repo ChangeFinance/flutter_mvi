@@ -28,6 +28,7 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
     SideEffectProducer<State, Effect, Action, SideEffect>? sideEffectProducer,
     PostProcessor<State, Effect, Action>? postProcessor,
     Bootstrapper<Action>? bootstrapper,
+    StreamListener<Action>? streamObserver,
     this.showDebugLogs = false,
   }) {
     _state.add(initialState);
@@ -59,6 +60,14 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
           boot.invoke().listen((action) {
             actions.add(action);
             _log('$bootstrapper produced action: $action ');
+          });
+    });
+
+    streamObserver?.let((observer) {
+      _bucket <=
+          observer.invoke().listen((action) {
+            actions.add(action);
+            _log('$streamObserver produced action: $action ');
           });
     });
   }
