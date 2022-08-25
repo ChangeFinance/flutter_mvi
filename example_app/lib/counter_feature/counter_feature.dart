@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 
 import 'counter_repo.dart';
+import 'counter_service.dart';
 
 class CounterState {
   final int counter;
@@ -21,7 +22,22 @@ class CounterAction {}
 
 class IncrementClick extends CounterAction {}
 
+class SetCountAction extends CounterAction {
+  final int count;
+
+  SetCountAction(this.count);
+
+  @override
+  String toString() {
+    return "{SetCountAction value: $count}";
+  }
+}
+
+class Bootstrap extends CounterAction {}
+
 class CounterEffect {}
+
+class NavigateEffect extends CounterEffect {}
 
 class Increment extends CounterEffect {
   final int result;
@@ -34,22 +50,38 @@ class Increment extends CounterEffect {
   }
 }
 
-class Loading extends CounterEffect {}
+class SetCountEffect extends CounterEffect {
+  final int count;
 
-class CounterSideEffect {
-  final String message;
+  SetCountEffect(this.count);
 
-  CounterSideEffect(this.message);
+  @override
+  String toString() {
+    return "{SetCountEffect value: $count}";
+  }
 }
 
+class Loading extends CounterEffect {}
+
+abstract class CounterSideEffect {}
+
+class CounterMessageSideEffect {
+  final String message;
+
+  CounterMessageSideEffect(this.message);
+}
+
+class CounterNavigateSideEffect extends CounterSideEffect {}
+
 class CounterFeature extends MviFeature<CounterState, CounterEffect, CounterAction, CounterSideEffect> {
-  CounterFeature(CounterRepo repo)
+  CounterFeature(CounterRepo repo, CounterService service)
       : super(
           initialState: CounterState(),
           reducer: CounterReducer(),
           actor: CounterActor(repo),
           sideEffectProducer: CounterSideEffectProducer(),
-          bootstrapper: CounterBootstrapper(),
+          streamListener: CounterStreamListener(service),
+          showDebugLogs: true,
         ) {
     debugPrint('Constructor');
   }
@@ -63,6 +95,9 @@ class CounterReducer extends Reducer<CounterState, CounterEffect> {
     }
     if (effect is Loading) {
       return CounterState(loading: true, counter: state.counter);
+    }
+    if (effect is SetCountEffect) {
+      return CounterState(loading: true, counter: effect.count);
     }
     return state;
   }
@@ -78,6 +113,9 @@ class CounterActor extends Actor<CounterState, CounterEffect, CounterAction> {
     if (action is IncrementClick) {
       yield* _onIncrement();
     }
+    if (action is SetCountAction) {
+      yield SetCountEffect(action.count);
+    }
   }
 
   Stream<CounterEffect> _onIncrement() async* {
@@ -91,13 +129,21 @@ class CounterSideEffectProducer
     extends SideEffectProducer<CounterState, CounterEffect, CounterAction, CounterSideEffect> {
   @override
   invoke(state, effect, action) {
-    return CounterSideEffect("Action was: $action and effect is: $effect");
+    if (effect is NavigateEffect) {
+      return CounterNavigateSideEffect();
+    }
+    return null;
   }
 }
 
-class CounterBootstrapper extends Bootstrapper<CounterAction> {
-  @override
-  Stream<CounterAction> invoke() async* {
-    yield IncrementClick();
+class CounterStreamListener extends StreamListener<CounterAction> {
+  final CounterService _counterService;
+
+  CounterStreamListener(this._counterService) {
+    bucket <=
+        _counterService.counterStream.listen((value) {
+          print("COUNTER SERVICE TICK! $value");
+          addAction(SetCountAction(value));
+        });
   }
 }

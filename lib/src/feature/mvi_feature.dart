@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:rxdart/rxdart.dart';
 
@@ -18,6 +19,7 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
   final PublishSubject<Action> _actions = PublishSubject();
 
   final DisposableBucket _bucket = DisposableBucket();
+  final bool showDebugLogs;
 
   MviFeature({
     required State initialState,
@@ -26,6 +28,8 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
     SideEffectProducer<State, Effect, Action, SideEffect>? sideEffectProducer,
     PostProcessor<State, Effect, Action>? postProcessor,
     Bootstrapper<Action>? bootstrapper,
+    StreamListener<Action>? streamListener,
+    this.showDebugLogs = false,
   }) {
     _state.add(initialState);
 
@@ -33,20 +37,45 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
 
     _bucket <=
         _actions.listen((action) {
-         _bucket <= actor.invoke(_state.value, action).listen((effect) {
-            final newState = reducer.invoke(_state.value, effect);
-            _state.add(newState);
-            sideEffectProducer?.invoke(newState, effect, action)?.let((sideEffect) => _sideEffects.add(sideEffect));
-            postProcessor?.invoke(newState, effect, action)?.let((postAction) => actions.add(postAction));
-          });
+          _log('$this consumed action: $action ');
+          _bucket <=
+              actor.invoke(_state.value, action).listen((effect) {
+                _log('$actor produced effect: $effect ');
+                final newState = reducer.invoke(_state.value, effect);
+                _state.add(newState);
+                _log('$reducer produced new state: $newState ');
+                sideEffectProducer?.invoke(newState, effect, action)?.let((sideEffect) {
+                  _sideEffects.add(sideEffect);
+                  _log('$sideEffectProducer produced side effect: $sideEffect ');
+                });
+                postProcessor?.invoke(newState, effect, action)?.let((postAction) {
+                  actions.add(postAction);
+                  _log('$postProcessor produced action: $postAction ');
+                });
+              });
         });
 
     bootstrapper?.let((boot) {
       _bucket <=
           boot.invoke().listen((action) {
             actions.add(action);
+            _log('$bootstrapper produced action: $action ');
           });
     });
+
+    streamListener?.let((listener) {
+      _bucket <=
+          listener.actions.listen((action) {
+            actions.add(action);
+            _log('$streamListener produced action: $action ');
+          });
+    });
+  }
+
+  _log(String arg) {
+    if (showDebugLogs) {
+      log('>>Mvi log: $arg');
+    }
   }
 
   @override

@@ -3,6 +3,8 @@ import 'package:counter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 
+import 'blank_screen.dart';
+
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
 
@@ -12,7 +14,11 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   }
 
   sideEffectListener(CounterSideEffect effect) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(effect.message)));
+    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(effect.message)));
+
+    Navigator.push<dynamic>(context, MaterialPageRoute<dynamic>(builder: (BuildContext context) {
+      return BlankScreen();
+    }));
   }
 
   CounterAction? eventToAction(CounterUIEvent uiEvent) {
@@ -21,12 +27,16 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
     }
     return null;
   }
+
+  @override
+  void dispose(){
+    super.dispose();
+  }
 }
 
 Stream<CounterUIState> Function(BuildContext context) stateTransformer(CounterFeature counterFeature) {
   return (context) => counterFeature.state.map((state) {
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.toString())));
-    return CounterUIState(counter: state.counter, loading: state.loading);
-  });
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.toString())));
+        return CounterUIState(counter: state.counter, loading: state.loading);
+      });
 }
