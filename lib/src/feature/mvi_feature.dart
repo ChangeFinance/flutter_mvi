@@ -8,7 +8,7 @@ import '../utils/disposable.dart';
 import '../utils/extensions.dart';
 
 abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposable {
-  Stream<State> get state => _state;
+  Stream<State> get state => _state.distinct();
 
   Stream<SideEffect> get sideEffects => _sideEffects;
 
