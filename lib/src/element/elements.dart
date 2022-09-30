@@ -57,7 +57,6 @@ abstract class StreamListener<Action> implements Disposable {
 
 /// Invoked on every action, produces effects that are consumed by all other element.
 abstract class Actor<State, Effect, Action> implements Disposable {
-  @Deprecated('Use [StreamObserver] for stream listening')
   final DisposableBucket bucket = DisposableBucket();
 
   Stream<Effect> invoke(State state, Action action);

@@ -6,23 +6,36 @@ import 'package:test/test.dart';
 
 import 'mvi_feature_test.mocks.dart';
 
-@GenerateMocks([TestActor, TestReducer, TestSideEffectProducer, TestPostProcessor, TestBootstrapper])
+@GenerateMocks([
+  TestActor,
+  TestReducer,
+  TestSideEffectProducer,
+  TestPostProcessor,
+  TestBootstrapper,
+  TestStreamListener,
+])
 void main() {
   group('simple mvi feature', () {
     test('emit initial state', () {
+      /// arrange
       final reducer = MockTestReducer();
       final actor = MockTestActor();
+
+      /// act
       final feature = TestableFeature(initialState: initialState, reducer: reducer, actor: actor);
       feature.state.listen(expectAsync1((State state) {
+        /// assert
         expect(state, initialState);
       }, count: 1));
     });
 
     test('call actor', () async {
+      /// arrange
       final reducer = MockTestReducer();
       final actor = MockTestActor();
       final feature = TestableFeature(initialState: initialState, reducer: reducer, actor: actor);
 
+      /// act
       when(actor.invoke(any, any)).thenAnswer((_) async* {
         yield Effect();
       });
@@ -30,11 +43,14 @@ void main() {
       final action = Action();
       feature <= action;
       await Future.delayed(Duration(milliseconds: 10));
+
+      /// assert
       verify(actor.invoke(initialState, action));
       await untilCalled(actor.invoke(initialState, action));
     });
 
     test('call reducer', () async {
+      /// arrange
       final reducer = MockTestReducer();
       final actor = MockTestActor();
       final feature = TestableFeature(initialState: initialState, reducer: reducer, actor: actor);
@@ -44,13 +60,18 @@ void main() {
       });
 
       when(reducer.invoke(any, any)).thenReturn(initialState);
+
+      /// act
       feature <= Action();
+
+      /// assert
       await Future.delayed(Duration(milliseconds: 10));
       verify(reducer.invoke(initialState, effect));
       await untilCalled(reducer.invoke(initialState, effect));
     });
 
     test('call reducer twice', () async {
+      /// arrange
       final reducer = MockTestReducer();
       when(reducer.invoke(any, any)).thenReturn(initialState);
 
@@ -60,9 +81,11 @@ void main() {
         actor: TestBypassActor(),
       );
 
+      /// act
       feature <= Action();
       feature <= Action();
 
+      /// assert
       await Future.delayed(Duration(milliseconds: 100));
       verify(reducer.invoke(any, any)).called(2);
     });
@@ -70,6 +93,7 @@ void main() {
 
   group('full mvi feature', () {
     test('call SideEffectProducer', () async {
+      /// arrange
       final reducer = MockTestReducer();
       final actor = MockTestActor();
       final sideEffectProducer = MockTestSideEffectProducer();
@@ -87,15 +111,18 @@ void main() {
         sideEffectProducer: sideEffectProducer,
       );
 
+      /// act
       final action = Action();
       feature <= action;
 
+      /// assert
       await Future.delayed(Duration(milliseconds: 10));
       verify(sideEffectProducer.invoke(State(2), effect, action));
       await untilCalled(sideEffectProducer.invoke(State(2), effect, action));
     });
 
     test('call PostProcessor', () async {
+      /// arrange
       final reducer = MockTestReducer();
       final actor = MockTestActor();
       final postProcessor = MockTestPostProcessor();
@@ -115,14 +142,17 @@ void main() {
         postProcessor: postProcessor,
       );
 
+      /// act
       feature <= action;
 
+      /// assert
       await Future.delayed(Duration(milliseconds: 10));
       verify(postProcessor.invoke(State(2), effect, action));
       await untilCalled(postProcessor.invoke(State(2), effect, action));
     });
 
     test('call Bootstrapper', () async {
+      /// arrange
       final reducer = MockTestReducer();
       final actor = MockTestActor();
       final postProcessor = MockTestPostProcessor();
@@ -140,11 +170,54 @@ void main() {
         yield action;
       });
 
+      /// act
       TestableFeature(initialState: initialState, reducer: reducer, actor: actor, bootstrapper: bootstrapper);
+
+      /// assert
       await Future.delayed(Duration(milliseconds: 10));
       verify(bootstrapper.invoke());
       TestableFeature(initialState: initialState, reducer: reducer, actor: actor, bootstrapper: bootstrapper);
       await untilCalled(bootstrapper.invoke());
+    });
+
+    test('call disposable elements', () async {
+      /// arrange
+      final reducer = MockTestReducer();
+      final actor = MockTestActor();
+      final postProcessor = MockTestPostProcessor();
+      final bootstrapper = MockTestBootstrapper();
+      final streamListener = MockTestStreamListener();
+      final effect = Effect();
+      final action = Action();
+      when(actor.invoke(initialState, action)).thenAnswer((_) async* {
+        yield effect;
+      });
+      when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
+
+      when(postProcessor.invoke(any, any, any)).thenReturn(null);
+
+      when(bootstrapper.invoke()).thenAnswer((_) async* {
+        yield action;
+      });
+
+      when(streamListener.actions).thenAnswer((_) async* {
+        yield action;
+      });
+
+      final feature = TestableFeature(
+        initialState: initialState,
+        reducer: reducer,
+        actor: actor,
+        bootstrapper: bootstrapper,
+        streamListener: streamListener,
+      );
+
+      /// act
+      feature.dispose();
+
+      /// assert
+      verify(actor.dispose());
+      verify(streamListener.dispose());
     });
   });
 }
@@ -159,6 +232,7 @@ class TestableFeature extends MviFeature<State, Effect, Action, SideEffect> {
     SideEffectProducer<State, Effect, Action, SideEffect>? sideEffectProducer,
     PostProcessor<State, Effect, Action>? postProcessor,
     Bootstrapper<Action>? bootstrapper,
+    StreamListener<Action>? streamListener,
   }) : super(
           initialState: initialState,
           reducer: reducer,
@@ -166,6 +240,7 @@ class TestableFeature extends MviFeature<State, Effect, Action, SideEffect> {
           sideEffectProducer: sideEffectProducer,
           postProcessor: postProcessor,
           bootstrapper: bootstrapper,
+          streamListener: streamListener,
         );
 }
 
@@ -178,6 +253,8 @@ abstract class TestSideEffectProducer implements SideEffectProducer<State, Effec
 abstract class TestPostProcessor implements PostProcessor<State, Effect, Action> {}
 
 abstract class TestBootstrapper implements Bootstrapper<Action> {}
+
+abstract class TestStreamListener implements StreamListener<Action> {}
 
 class Action {}
 
