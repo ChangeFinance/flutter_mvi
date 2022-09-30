@@ -64,6 +64,7 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
     });
 
     streamListener?.let((listener) {
+      _bucket <= listener;
       _bucket <=
           listener.actions.listen((action) {
             actions.add(action);
