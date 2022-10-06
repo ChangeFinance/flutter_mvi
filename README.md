@@ -3,6 +3,8 @@
 Mvi state management implementation for dart/flutter projects.
 Easily extendable approach based on composition, use only what you need.
 
+[lucid](https://lucid.app/lucidchart/ac9b33fd-71a3-4e1a-9b3d-9feeda497cf6/edit?viewport_loc=-455%2C-243%2C1876%2C1211%2C0_0&invitationId=inv_0e6ece97-bec9-4017-bfdc-69bd09f6d15b#)
+
 <img src="https://user-images.githubusercontent.com/841716/163926194-edc7fb58-0e99-4901-a431-8f6b8cbcb74e.png" width="700" height="550">
 
 
