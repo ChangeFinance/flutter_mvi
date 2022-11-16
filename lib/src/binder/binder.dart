@@ -5,7 +5,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class UiState{}
+abstract class UiState{
+  const UiState();
+}
 
 abstract class UiEvent {}
 

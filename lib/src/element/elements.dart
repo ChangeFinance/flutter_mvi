@@ -4,7 +4,9 @@ import 'package:rxdart/rxdart.dart';
 
 import '../utils/disposable.dart';
 
-abstract class FeatureState{}
+abstract class FeatureState{
+  const FeatureState();
+}
 
 /// Invoked on each new effect.
 /// Consumes [effect], produces new state.

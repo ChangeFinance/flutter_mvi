@@ -10,7 +10,7 @@ class CounterState extends FeatureState{
   final int counter;
   final bool loading;
 
-  CounterState({this.counter = 0, this.loading = false});
+  const CounterState({this.counter = 0, this.loading = false});
 
   @override
   String toString() {
