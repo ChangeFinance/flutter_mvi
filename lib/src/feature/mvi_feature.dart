@@ -7,16 +7,16 @@ import '../element/elements.dart';
 import '../utils/disposable.dart';
 import '../utils/extensions.dart';
 
-abstract class MviFeature<S extends FeatureState, Effect, Action, SideEffect> implements Disposable {
+abstract class MviFeature<S extends FeatureState, Effect, A extends FeatureAction, SideEffect> implements Disposable {
   Stream<S> get state => _state.distinct();
 
   Stream<SideEffect> get sideEffects => _sideEffects;
 
-  StreamSink<Action> get actions => _actions.sink;
+  StreamSink<A> get actions => _actions.sink;
 
   final BehaviorSubject<S> _state = BehaviorSubject();
   final PublishSubject<SideEffect> _sideEffects = PublishSubject();
-  final PublishSubject<Action> _actions = PublishSubject();
+  final PublishSubject<A> _actions = PublishSubject();
 
   final DisposableBucket _bucket = DisposableBucket();
   final bool showDebugLogs;
@@ -24,11 +24,11 @@ abstract class MviFeature<S extends FeatureState, Effect, Action, SideEffect> im
   MviFeature({
     required S initialState,
     required Reducer<S, Effect> reducer,
-    required Actor<S, Effect, Action> actor,
-    SideEffectProducer<S, Effect, Action, SideEffect>? sideEffectProducer,
-    PostProcessor<S, Effect, Action>? postProcessor,
-    Bootstrapper<Action>? bootstrapper,
-    StreamListener<Action>? streamListener,
+    required Actor<S, Effect, A> actor,
+    SideEffectProducer<S, Effect, A, SideEffect>? sideEffectProducer,
+    PostProcessor<S, Effect, A>? postProcessor,
+    Bootstrapper<A>? bootstrapper,
+    StreamListener<A>? streamListener,
     this.showDebugLogs = false,
   }) {
     _state.add(initialState);
@@ -83,8 +83,8 @@ abstract class MviFeature<S extends FeatureState, Effect, Action, SideEffect> im
   void dispose() => _bucket.dispose();
 }
 
-extension FeatureExtension<S extends FeatureState, Effect, Action, SideEffect> on MviFeature<S, Effect, Action, SideEffect> {
-  void operator <=(Action action) {
+extension FeatureExtension<S extends FeatureState, Effect, A extends FeatureAction, SideEffect> on MviFeature<S, Effect, A, SideEffect> {
+  void operator <=(A action) {
     actions.add(action);
   }
 }

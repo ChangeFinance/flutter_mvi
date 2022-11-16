@@ -8,6 +8,11 @@ abstract class FeatureState{
   const FeatureState();
 }
 
+
+abstract class FeatureAction{
+  const FeatureAction();
+}
+
 /// Invoked on each new effect.
 /// Consumes [effect], produces new state.
 /// The only class that can mutate [state].
@@ -21,35 +26,35 @@ abstract class Reducer<S extends FeatureState, Effect> {
 ///
 /// Used for SingleLiveEvent like effects.
 /// Producing sideEffect is optional state/effect/action.
-abstract class SideEffectProducer<S extends FeatureState, Effect, Action, SideEffect> {
-  SideEffect? invoke(S state, Effect effect, Action action);
+abstract class SideEffectProducer<S extends FeatureState, Effect, A extends FeatureAction, SideEffect> {
+  SideEffect? invoke(S state, Effect effect, A action);
 }
 
 /// Invoked on each new effect, produces action.
 ///
 /// Used for initialisation of new action -> effect loop for more complex execution logic.
 /// Producing action is optional for given state/effect/action.
-abstract class PostProcessor<S extends FeatureState, Effect, Action> {
-  Action? invoke(S state, Effect effect, Action action);
+abstract class PostProcessor<S extends FeatureState, Effect, A extends FeatureAction> {
+  A? invoke(S state, Effect effect, A action);
 }
 
 /// Invoked on initialisation, produces initial action or actions.
 ///
 /// Used for warmup/bootstrap feature on initialisation
-abstract class Bootstrapper<Action> {
-  Stream<Action> invoke();
+abstract class Bootstrapper<A extends FeatureAction> {
+  Stream<A> invoke();
 }
 
 /// Listened on initialisation, produces actions.
 ///
 /// Used for listening to streams and disposing subscriptions.
-abstract class StreamListener<Action> implements Disposable {
-  Stream<Action> get actions => _actions.stream;
-  final PublishSubject<Action> _actions = PublishSubject();
+abstract class StreamListener<A extends FeatureAction> implements Disposable {
+  Stream<A> get actions => _actions.stream;
+  final PublishSubject<A> _actions = PublishSubject();
 
   final DisposableBucket bucket = DisposableBucket();
 
-  void addAction(Action action) {
+  void addAction(A action) {
     _actions.add(action);
   }
 
@@ -60,10 +65,10 @@ abstract class StreamListener<Action> implements Disposable {
 }
 
 /// Invoked on every action, produces effects that are consumed by all other element.
-abstract class Actor<S extends FeatureState, Effect, Action> implements Disposable {
+abstract class Actor<S extends FeatureState, Effect, A extends FeatureAction> implements Disposable {
   final DisposableBucket bucket = DisposableBucket();
 
-  Stream<Effect> invoke(S state, Action action);
+  Stream<Effect> invoke(S state, A action);
 
   @override
   void dispose() {

@@ -256,7 +256,7 @@ abstract class TestBootstrapper implements Bootstrapper<Action> {}
 
 abstract class TestStreamListener implements StreamListener<Action> {}
 
-class Action {}
+class Action extends FeatureAction{}
 
 class Effect {}
 

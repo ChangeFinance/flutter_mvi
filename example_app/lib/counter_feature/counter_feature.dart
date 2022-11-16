@@ -18,7 +18,7 @@ class CounterState extends FeatureState{
   }
 }
 
-class CounterAction {}
+class CounterAction extends FeatureAction {}
 
 class IncrementClick extends CounterAction {}
 

@@ -42,7 +42,7 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
 
   /// Binding UiEvent (user interactions) to feature.
   /// Also adding feature to disposable bucket.
-  void bindUiEventTo<Action>(MviFeature feature, {required Action? Function(E uiEvent) using}) {
+  void bindUiEventTo<A extends FeatureAction>(MviFeature feature, {required A? Function(E uiEvent) using}) {
     bucket <= feature;
     bucket <=
         _uiEvents.listen((uiEvent) {
