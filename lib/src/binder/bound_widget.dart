@@ -2,12 +2,12 @@ import 'package:flutter/widgets.dart';
 
 import 'binder.dart';
 
-abstract class BoundWidget<UiState, UiEvent> extends StatefulWidget {
-  final Binder<UiState, UiEvent> binder;
+abstract class BoundWidget<U extends UiState,  E extends UiEvent> extends StatefulWidget {
+  final Binder<U, E> binder;
 
   const BoundWidget({Key? key, required this.binder}) : super(key: key);
 
-  Widget builder(BuildContext context, Binder<UiState, UiEvent> binder);
+  Widget builder(BuildContext context, Binder<U, E> binder);
 
   @override
   State<StatefulWidget> createState() {
@@ -15,7 +15,7 @@ abstract class BoundWidget<UiState, UiEvent> extends StatefulWidget {
   }
 }
 
-class BoundWidgetState<UiState, UiEvent> extends State<BoundWidget> {
+class BoundWidgetState<U, E> extends State<BoundWidget> {
   BoundWidgetState();
 
   @override

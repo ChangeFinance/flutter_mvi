@@ -7,14 +7,14 @@ import '../element/elements.dart';
 import '../utils/disposable.dart';
 import '../utils/extensions.dart';
 
-abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposable {
-  Stream<State> get state => _state.distinct();
+abstract class MviFeature<S extends FeatureState, Effect, Action, SideEffect> implements Disposable {
+  Stream<S> get state => _state.distinct();
 
   Stream<SideEffect> get sideEffects => _sideEffects;
 
   StreamSink<Action> get actions => _actions.sink;
 
-  final BehaviorSubject<State> _state = BehaviorSubject();
+  final BehaviorSubject<S> _state = BehaviorSubject();
   final PublishSubject<SideEffect> _sideEffects = PublishSubject();
   final PublishSubject<Action> _actions = PublishSubject();
 
@@ -22,11 +22,11 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
   final bool showDebugLogs;
 
   MviFeature({
-    required State initialState,
-    required Reducer<State, Effect> reducer,
-    required Actor<State, Effect, Action> actor,
-    SideEffectProducer<State, Effect, Action, SideEffect>? sideEffectProducer,
-    PostProcessor<State, Effect, Action>? postProcessor,
+    required S initialState,
+    required Reducer<S, Effect> reducer,
+    required Actor<S, Effect, Action> actor,
+    SideEffectProducer<S, Effect, Action, SideEffect>? sideEffectProducer,
+    PostProcessor<S, Effect, Action>? postProcessor,
     Bootstrapper<Action>? bootstrapper,
     StreamListener<Action>? streamListener,
     this.showDebugLogs = false,
@@ -83,7 +83,7 @@ abstract class MviFeature<State, Effect, Action, SideEffect> implements Disposab
   void dispose() => _bucket.dispose();
 }
 
-extension FeatureExtension<State, Effect, Action, SideEffect> on MviFeature<State, Effect, Action, SideEffect> {
+extension FeatureExtension<S extends FeatureState, Effect, Action, SideEffect> on MviFeature<S, Effect, Action, SideEffect> {
   void operator <=(Action action) {
     actions.add(action);
   }

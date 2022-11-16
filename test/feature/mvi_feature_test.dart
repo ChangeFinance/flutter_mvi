@@ -262,7 +262,7 @@ class Effect {}
 
 class SideEffect {}
 
-class State {
+class State extends FeatureState{
   final int value;
 
   State(this.value);

@@ -6,7 +6,7 @@ import 'package:flutter_mvi/flutter_mvi.dart';
 import 'counter_repo.dart';
 import 'counter_service.dart';
 
-class CounterState {
+class CounterState extends FeatureState{
   final int counter;
   final bool loading;
 

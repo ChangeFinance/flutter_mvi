@@ -5,17 +5,21 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class Binder<UiState, UiEvent> {
-  final Stream<UiState> Function(BuildContext context) _transformer;
+abstract class UiState{}
+
+abstract class UiEvent {}
+
+abstract class Binder<U extends UiState, E extends UiEvent> {
+  final Stream<U> Function(BuildContext context) _transformer;
   final DisposableBucket bucket = DisposableBucket();
-  final PublishSubject<UiEvent> _uiEvents = PublishSubject();
+  final PublishSubject<E> _uiEvents = PublishSubject();
   late BuildContext context;
 
   Binder(this._transformer);
 
   /// Method that provides state to bounded widget
-  Widget stateBuilder(AsyncWidgetBuilder<UiState> builder) {
-    return StreamBuilder<UiState>(builder: builder, stream: _transformer(context));
+  Widget stateBuilder(AsyncWidgetBuilder<U> builder) {
+    return StreamBuilder<U>(builder: builder, stream: _transformer(context));
   }
 
   /// Binding feature side effect to listener function
@@ -36,7 +40,7 @@ abstract class Binder<UiState, UiEvent> {
 
   /// Binding UiEvent (user interactions) to feature.
   /// Also adding feature to disposable bucket.
-  void bindUiEventTo<Action>(MviFeature feature, {required Action? Function(UiEvent uiEvent) using}) {
+  void bindUiEventTo<Action>(MviFeature feature, {required Action? Function(E uiEvent) using}) {
     bucket <= feature;
     bucket <=
         _uiEvents.listen((uiEvent) {

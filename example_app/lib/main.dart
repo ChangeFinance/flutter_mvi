@@ -64,13 +64,13 @@ class HomePage extends BoundWidget<CounterUIState, CounterUIEvent> {
   }
 }
 
-class CounterUIState {
+class CounterUIState extends UiState{
   final int counter;
   final bool loading;
 
   CounterUIState({required this.counter, required this.loading});
 }
 
-class CounterUIEvent {}
+class CounterUIEvent extends UiEvent {}
 
 class PlusClicked extends CounterUIEvent {}
