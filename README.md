@@ -16,6 +16,7 @@ Mvi consists of several simple element. Each element does only **one** job:
 * **SideEffectProducer**: consumes *Action*, *State* and *Effect*, produces optional side effect (one time event/ single live event).
 * **PostProcessor**: consumes *Action*, *State* and *Effect*, produces optional *Action*.
 * **Bootstrapper**: produces initial *Action*.
+* **StreamListener**: subscribes to stream or streams and produces reactive *Action*s.
 * **Feature**: class that does all the cross-element communication under the hood.
  ___
 * **State**: immutable data class *without* any logic, represents feature's current state.
