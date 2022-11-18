@@ -54,5 +54,7 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
 
   void dispose() => bucket.dispose();
 
-  get add => _uiEvents.sink.add;
+  void add(E event){
+    _uiEvents.sink.add(event);
+  }
 }
