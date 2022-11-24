@@ -6,7 +6,7 @@ import 'package:flutter_mvi/flutter_mvi.dart';
 import 'counter_repo.dart';
 import 'counter_service.dart';
 
-class CounterState extends FeatureState{
+class CounterState extends FeatureState {
   final int counter;
   final bool loading;
 
@@ -125,10 +125,9 @@ class CounterActor extends Actor<CounterState, CounterEffect, CounterAction> {
   }
 }
 
-class CounterSideEffectProducer
-    extends SideEffectProducer<CounterState, CounterEffect, CounterAction, CounterSideEffect> {
+class CounterSideEffectProducer extends SideEffectProducer<CounterEffect, CounterSideEffect> {
   @override
-  invoke(state, effect, action) {
+  invoke(effect) {
     if (effect is NavigateEffect) {
       return CounterNavigateSideEffect();
     }

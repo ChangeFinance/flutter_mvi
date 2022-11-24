@@ -26,16 +26,16 @@ abstract class Reducer<S extends FeatureState, Effect> {
 ///
 /// Used for SingleLiveEvent like effects.
 /// Producing sideEffect is optional state/effect/action.
-abstract class SideEffectProducer<S extends FeatureState, Effect, A extends FeatureAction, SideEffect> {
-  SideEffect? invoke(S state, Effect effect, A action);
+abstract class SideEffectProducer< Effect, SideEffect> {
+  SideEffect? invoke(Effect effect);
 }
 
 /// Invoked on each new effect, produces action.
 ///
 /// Used for initialisation of new action -> effect loop for more complex execution logic.
 /// Producing action is optional for given state/effect/action.
-abstract class PostProcessor<S extends FeatureState, Effect, A extends FeatureAction> {
-  A? invoke(S state, Effect effect, A action);
+abstract class PostProcessor<Effect, A extends FeatureAction> {
+  A? invoke(Effect effect);
 }
 
 /// Invoked on initialisation, produces initial action or actions.
