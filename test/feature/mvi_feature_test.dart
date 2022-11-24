@@ -102,7 +102,7 @@ void main() {
         yield effect;
       });
       when(reducer.invoke(any, any)).thenAnswer((_) => State(2));
-      when(sideEffectProducer.invoke(any, any, any)).thenReturn(SideEffect());
+      when(sideEffectProducer.invoke(any)).thenReturn(SideEffect());
 
       final feature = TestableFeature(
         initialState: initialState,
@@ -117,8 +117,8 @@ void main() {
 
       /// assert
       await Future.delayed(Duration(milliseconds: 10));
-      verify(sideEffectProducer.invoke(State(2), effect, action));
-      await untilCalled(sideEffectProducer.invoke(State(2), effect, action));
+      verify(sideEffectProducer.invoke(effect));
+      await untilCalled(sideEffectProducer.invoke(effect));
     });
 
     test('call PostProcessor', () async {
@@ -133,7 +133,7 @@ void main() {
       });
       when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
 
-      when(postProcessor.invoke(any, any, any)).thenReturn(null);
+      when(postProcessor.invoke(any)).thenReturn(null);
 
       final feature = TestableFeature(
         initialState: initialState,
@@ -147,8 +147,8 @@ void main() {
 
       /// assert
       await Future.delayed(Duration(milliseconds: 10));
-      verify(postProcessor.invoke(State(2), effect, action));
-      await untilCalled(postProcessor.invoke(State(2), effect, action));
+      verify(postProcessor.invoke(effect));
+      await untilCalled(postProcessor.invoke(effect));
     });
 
     test('call Bootstrapper', () async {
@@ -164,7 +164,7 @@ void main() {
       });
       when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
 
-      when(postProcessor.invoke(any, any, any)).thenReturn(null);
+      when(postProcessor.invoke(any)).thenReturn(null);
 
       when(bootstrapper.invoke()).thenAnswer((_) async* {
         yield action;
@@ -194,7 +194,7 @@ void main() {
       });
       when(reducer.invoke(initialState, effect)).thenAnswer((_) => State(2));
 
-      when(postProcessor.invoke(any, any, any)).thenReturn(null);
+      when(postProcessor.invoke(any)).thenReturn(null);
 
       when(bootstrapper.invoke()).thenAnswer((_) async* {
         yield action;
@@ -229,8 +229,8 @@ class TestableFeature extends MviFeature<State, Effect, Action, SideEffect> {
     required State initialState,
     required Reducer<State, Effect> reducer,
     required Actor<State, Effect, Action> actor,
-    SideEffectProducer<State, Effect, Action, SideEffect>? sideEffectProducer,
-    PostProcessor<State, Effect, Action>? postProcessor,
+    SideEffectProducer<Effect, SideEffect>? sideEffectProducer,
+    PostProcessor<Effect, Action>? postProcessor,
     Bootstrapper<Action>? bootstrapper,
     StreamListener<Action>? streamListener,
   }) : super(
@@ -248,21 +248,21 @@ abstract class TestReducer implements Reducer<State, Effect> {}
 
 abstract class TestActor implements Actor<State, Effect, Action> {}
 
-abstract class TestSideEffectProducer implements SideEffectProducer<State, Effect, Action, SideEffect> {}
+abstract class TestSideEffectProducer implements SideEffectProducer<Effect, SideEffect> {}
 
-abstract class TestPostProcessor implements PostProcessor<State, Effect, Action> {}
+abstract class TestPostProcessor implements PostProcessor<Effect, Action> {}
 
 abstract class TestBootstrapper implements Bootstrapper<Action> {}
 
 abstract class TestStreamListener implements StreamListener<Action> {}
 
-class Action extends FeatureAction{}
+class Action extends FeatureAction {}
 
 class Effect {}
 
 class SideEffect {}
 
-class State extends FeatureState{
+class State extends FeatureState {
   final int value;
 
   State(this.value);

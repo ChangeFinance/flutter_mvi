@@ -25,8 +25,8 @@ abstract class MviFeature<S extends FeatureState, Effect, A extends FeatureActio
     required S initialState,
     required Reducer<S, Effect> reducer,
     required Actor<S, Effect, A> actor,
-    SideEffectProducer<S, Effect, A, SideEffect>? sideEffectProducer,
-    PostProcessor<S, Effect, A>? postProcessor,
+    SideEffectProducer<Effect, SideEffect>? sideEffectProducer,
+    PostProcessor<Effect, A>? postProcessor,
     Bootstrapper<A>? bootstrapper,
     StreamListener<A>? streamListener,
     this.showDebugLogs = false,
@@ -44,11 +44,11 @@ abstract class MviFeature<S extends FeatureState, Effect, A extends FeatureActio
                 final newState = reducer.invoke(_state.value, effect);
                 _state.add(newState);
                 _log('$reducer produced new state: $newState ');
-                sideEffectProducer?.invoke(newState, effect, action)?.let((sideEffect) {
+                sideEffectProducer?.invoke(effect)?.let((sideEffect) {
                   _sideEffects.add(sideEffect);
                   _log('$sideEffectProducer produced side effect: $sideEffect ');
                 });
-                postProcessor?.invoke(newState, effect, action)?.let((postAction) {
+                postProcessor?.invoke(effect)?.let((postAction) {
                   actions.add(postAction);
                   _log('$postProcessor produced action: $postAction ');
                 });
