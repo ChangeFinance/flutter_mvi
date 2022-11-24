@@ -256,13 +256,13 @@ abstract class TestBootstrapper implements Bootstrapper<Action> {}
 
 abstract class TestStreamListener implements StreamListener<Action> {}
 
-class Action {}
+class Action extends FeatureAction{}
 
 class Effect {}
 
 class SideEffect {}
 
-class State {
+class State extends FeatureState{
   final int value;
 
   State(this.value);

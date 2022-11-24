@@ -6,11 +6,11 @@ import 'package:flutter_mvi/flutter_mvi.dart';
 import 'counter_repo.dart';
 import 'counter_service.dart';
 
-class CounterState {
+class CounterState extends FeatureState{
   final int counter;
   final bool loading;
 
-  CounterState({this.counter = 0, this.loading = false});
+  const CounterState({this.counter = 0, this.loading = false});
 
   @override
   String toString() {
@@ -18,7 +18,7 @@ class CounterState {
   }
 }
 
-class CounterAction {}
+class CounterAction extends FeatureAction {}
 
 class IncrementClick extends CounterAction {}
 
