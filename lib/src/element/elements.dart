@@ -4,12 +4,11 @@ import 'package:rxdart/rxdart.dart';
 
 import '../utils/disposable.dart';
 
-abstract class FeatureState{
+abstract class FeatureState {
   const FeatureState();
 }
 
-
-abstract class FeatureAction{
+abstract class FeatureAction {
   const FeatureAction();
 }
 
@@ -26,7 +25,7 @@ abstract class Reducer<S extends FeatureState, Effect> {
 ///
 /// Used for SingleLiveEvent like effects.
 /// Producing sideEffect is optional state/effect/action.
-abstract class SideEffectProducer< Effect, SideEffect> {
+abstract class SideEffectProducer<Effect, SideEffect> {
   SideEffect? invoke(Effect effect);
 }
 
