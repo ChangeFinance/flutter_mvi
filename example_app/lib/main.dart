@@ -43,11 +43,11 @@ class HomePage extends BoundWidget<CounterUIState, CounterUIEvent> {
           children: <Widget>[
             const Text('You have pushed the button this many times:'),
             binder.stateBuilder((context, snapshot) {
-              var counter = snapshot.data?.counter;
+              var counter = snapshot.counter;
               return Text(counter.toString());
             }),
             binder.stateBuilder((context, snapshot) {
-              var loading = snapshot.data?.loading;
+              var loading = snapshot.loading;
               return Text(loading.toString());
             }),
           ],

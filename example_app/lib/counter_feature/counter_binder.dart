@@ -8,7 +8,11 @@ import 'blank_screen.dart';
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
 
-  CounterBinder(this.counterFeature) : super(stateTransformer(counterFeature)) {
+  CounterBinder(this.counterFeature)
+      : super(
+          stateTransformer(counterFeature),
+          CounterUIState(counter: 0, loading: false),
+        ) {
     bind<CounterSideEffect>(counterFeature, to: sideEffectListener);
     bindUiEventTo<CounterAction>(counterFeature, using: eventToAction);
   }
@@ -29,7 +33,7 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
 }

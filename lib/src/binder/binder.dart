@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class UiState{
+abstract class UiState {
   const UiState();
 }
 
@@ -13,15 +13,20 @@ abstract class UiEvent {}
 
 abstract class Binder<U extends UiState, E extends UiEvent> {
   final Stream<U> Function(BuildContext context) _transformer;
+  final U initialUiState;
   final DisposableBucket bucket = DisposableBucket();
   final PublishSubject<E> _uiEvents = PublishSubject();
   late BuildContext context;
 
-  Binder(this._transformer);
+  Binder(this._transformer, this.initialUiState);
 
   /// Method that provides state to bounded widget
-  Widget stateBuilder(AsyncWidgetBuilder<U> builder) {
-    return StreamBuilder<U>(builder: builder, stream: _transformer(context));
+  Widget stateBuilder(WidgetBuilder<U> builder) {
+    return FeatureStreamBuilder<U>(
+      builder: builder,
+      stream: _transformer(context),
+      initialState: initialUiState,
+    );
   }
 
   /// Binding feature side effect to listener function
@@ -54,7 +59,70 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
 
   void dispose() => bucket.dispose();
 
-  void add(E event){
+  void add(E event) {
     _uiEvents.sink.add(event);
   }
+}
+
+typedef WidgetBuilder<T> = Widget Function(BuildContext context, T uiState);
+
+class FeatureStreamBuilder<T> extends StatefulWidget {
+  final Stream<T> stream;
+  final T initialState;
+  final WidgetBuilder<T> builder;
+
+  const FeatureStreamBuilder({
+    Key? key,
+    required this.stream,
+    required this.initialState,
+    required this.builder,
+  }) : super(key: key);
+
+  Widget build(BuildContext context, T uiState) => builder(context, uiState);
+
+  T afterConnected(T uiState) => uiState;
+
+  @override
+  State<FeatureStreamBuilder<T>> createState() => _FeatureStreamBuilderState<T>();
+}
+
+class _FeatureStreamBuilderState<T> extends State<FeatureStreamBuilder<T>> {
+  StreamSubscription<T>? _subscription;
+  late T uiState;
+
+  @override
+  void initState() {
+    super.initState();
+    uiState = widget.initialState;
+    _subscribe();
+  }
+
+  @override
+  void didUpdateWidget(FeatureStreamBuilder<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.stream != widget.stream) {
+      if (_subscription != null) {
+        _unsubscribe();
+      }
+      _subscribe();
+    }
+  }
+
+  void _subscribe() {
+    _subscription = widget.stream.listen((T data) {
+      setState(() {
+        uiState = data;
+      });
+    });
+  }
+
+  void _unsubscribe() {
+    if (_subscription != null) {
+      _subscription!.cancel();
+      _subscription = null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.build(context, uiState);
 }
