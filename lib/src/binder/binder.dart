@@ -12,20 +12,20 @@ abstract class UiState {
 abstract class UiEvent {}
 
 abstract class Binder<U extends UiState, E extends UiEvent> {
-  final Stream<U> Function(BuildContext context) _transformer;
-  final U initialUiState;
+  final Stream<U> Function(BuildContext context) _streamTransformer;
+  final U Function(BuildContext context) transform;
   final DisposableBucket bucket = DisposableBucket();
   final PublishSubject<E> _uiEvents = PublishSubject();
   late BuildContext context;
 
-  Binder(this._transformer, this.initialUiState);
+  Binder(this._streamTransformer, this.transform);
 
   /// Method that provides state to bounded widget
   Widget stateBuilder(WidgetBuilder<U> builder) {
     return FeatureStreamBuilder<U>(
       builder: builder,
-      stream: _transformer(context),
-      initialState: initialUiState,
+      stream: _streamTransformer(context),
+      initialState: transform(context),
     );
   }
 
