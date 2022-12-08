@@ -20,9 +20,10 @@ abstract class MviFeature<S extends FeatureState, Effect, A extends FeatureActio
 
   final DisposableBucket _bucket = DisposableBucket();
   final bool showDebugLogs;
+  final S initialState;
 
   MviFeature({
-    required S initialState,
+    required this.initialState,
     required Reducer<S, Effect> reducer,
     required Actor<S, Effect, A> actor,
     SideEffectProducer<Effect, SideEffect>? sideEffectProducer,
@@ -83,7 +84,8 @@ abstract class MviFeature<S extends FeatureState, Effect, A extends FeatureActio
   void dispose() => _bucket.dispose();
 }
 
-extension FeatureExtension<S extends FeatureState, Effect, A extends FeatureAction, SideEffect> on MviFeature<S, Effect, A, SideEffect> {
+extension FeatureExtension<S extends FeatureState, Effect, A extends FeatureAction, SideEffect>
+    on MviFeature<S, Effect, A, SideEffect> {
   void operator <=(A action) {
     actions.add(action);
   }
