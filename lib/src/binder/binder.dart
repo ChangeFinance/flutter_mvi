@@ -23,7 +23,7 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
   Widget stateBuilder(WidgetBuilder<U> builder) {
     return FeatureStreamBuilder<U>(
       builder: builder,
-      stream: transformer.uiStateStream(),
+      stream: transformer.uiStateStream(context),
       initialState: transformer.initialUiState(context),
     );
   }
@@ -64,7 +64,7 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
 }
 
 class Transformer<U extends UiState> {
-  final Stream<U> Function() uiStateStream;
+  final Stream<U> Function(BuildContext context) uiStateStream;
   final U Function(BuildContext context) initialUiState;
 
   Transformer({

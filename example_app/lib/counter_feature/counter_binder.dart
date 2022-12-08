@@ -11,7 +11,7 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterBinder(this.counterFeature)
       : super(
           Transformer<CounterUIState>(
-            uiStateStream: () => counterFeature.state.map((state) => stateTransformer(state)),
+            uiStateStream: (context) => counterFeature.state.map((state) => stateTransformer(state)),
             initialUiState: (context) => stateTransformer(counterFeature.initialState),
           ),
         ) {
