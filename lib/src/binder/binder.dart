@@ -12,20 +12,19 @@ abstract class UiState {
 abstract class UiEvent {}
 
 abstract class Binder<U extends UiState, E extends UiEvent> {
-  final Stream<U> Function(BuildContext context) _streamTransformer;
-  final U Function(BuildContext context) transform;
+  final Transformer<U> transformer;
   final DisposableBucket bucket = DisposableBucket();
   final PublishSubject<E> _uiEvents = PublishSubject();
   late BuildContext context;
 
-  Binder(this._streamTransformer, this.transform);
+  Binder(this.transformer);
 
   /// Method that provides state to bounded widget
   Widget stateBuilder(WidgetBuilder<U> builder) {
     return FeatureStreamBuilder<U>(
       builder: builder,
-      stream: _streamTransformer(context),
-      initialState: transform(context),
+      stream: transformer.streamTransformer(),
+      initialState: transformer.transformFunction(context),
     );
   }
 
@@ -62,6 +61,16 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
   void add(E event) {
     _uiEvents.sink.add(event);
   }
+}
+
+class Transformer<U extends UiState> {
+  final Stream<U> Function() streamTransformer;
+  final U Function(BuildContext context) transformFunction;
+
+  Transformer({
+    required this.streamTransformer,
+    required this.transformFunction,
+  });
 }
 
 typedef WidgetBuilder<T> = Widget Function(BuildContext context, T uiState);
