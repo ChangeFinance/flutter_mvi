@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-typedef UiWidgetBuilder<T> = Widget Function(BuildContext context, T value);
+typedef BoundWidgetBuilder<T> = Widget Function(BuildContext context, T value);
 
-class NonNullStreamBuilder<T> extends StatefulWidget {
+class BoundStreamBuilder<T> extends StatefulWidget {
   final Stream<T> stream;
   final T initialValue;
-  final UiWidgetBuilder<T> builder;
+  final BoundWidgetBuilder<T> builder;
 
-  const NonNullStreamBuilder({
+  const BoundStreamBuilder({
     Key? key,
     required this.stream,
     required this.initialValue,
@@ -21,10 +21,10 @@ class NonNullStreamBuilder<T> extends StatefulWidget {
   T afterConnected(T value) => value;
 
   @override
-  State<NonNullStreamBuilder<T>> createState() => _NonNullStreamBuilderState<T>();
+  State<BoundStreamBuilder<T>> createState() => _BoundStreamBuilderState<T>();
 }
 
-class _NonNullStreamBuilderState<T> extends State<NonNullStreamBuilder<T>> {
+class _BoundStreamBuilderState<T> extends State<BoundStreamBuilder<T>> {
   StreamSubscription<T>? _subscription;
   late T value;
 
@@ -36,7 +36,7 @@ class _NonNullStreamBuilderState<T> extends State<NonNullStreamBuilder<T>> {
   }
 
   @override
-  void didUpdateWidget(NonNullStreamBuilder<T> oldWidget) {
+  void didUpdateWidget(BoundStreamBuilder<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.stream != widget.stream) {
       if (_subscription != null) {

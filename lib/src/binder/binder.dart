@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'non_null_stream_builder.dart';
+import 'bound_stream_builder.dart';
 
 abstract class UiState {
   const UiState();
@@ -22,8 +22,8 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
   Binder(this.transformer);
 
   /// Method that provides state to bounded widget
-  Widget stateBuilder(UiWidgetBuilder<U> builder) {
-    return NonNullStreamBuilder<U>(
+  Widget stateBuilder(BoundWidgetBuilder<U> builder) {
+    return BoundStreamBuilder<U>(
       builder: builder,
       stream: transformer.uiStateStream(context),
       initialValue: transformer.initialUiState(context),
