@@ -8,17 +8,26 @@ import 'blank_screen.dart';
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
 
-  CounterBinder(this.counterFeature) : super(stateTransformer(counterFeature)) {
+  CounterBinder(this.counterFeature)
+      : super(
+          Transformer<CounterUIState>(
+            uiStateStream: (context) => counterFeature.state.map((state) => stateTransformer(state)),
+            initialUiState: (context) => stateTransformer(counterFeature.initialState),
+          ),
+        ) {
     bind<CounterSideEffect>(counterFeature, to: sideEffectListener);
     bindUiEventTo<CounterAction>(counterFeature, using: eventToAction);
   }
 
   sideEffectListener(CounterSideEffect effect) {
-    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(effect.message)));
-
-    Navigator.push<dynamic>(context, MaterialPageRoute<dynamic>(builder: (BuildContext context) {
-      return BlankScreen();
-    }));
+    Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) {
+          return BlankScreen();
+        },
+      ),
+    );
   }
 
   CounterAction? eventToAction(CounterUIEvent uiEvent) {
@@ -29,14 +38,11 @@ class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
 }
 
-Stream<CounterUIState> Function(BuildContext context) stateTransformer(CounterFeature counterFeature) {
-  return (context) => counterFeature.state.map((state) {
-        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.toString())));
-        return CounterUIState(counter: state.counter, loading: state.loading);
-      });
+CounterUIState stateTransformer(CounterState state) {
+  return CounterUIState(counter: state.counter, loading: state.loading);
 }

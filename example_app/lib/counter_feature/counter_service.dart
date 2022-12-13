@@ -11,6 +11,6 @@ class CounterService {
       // Code returning a value every 2 seconds.
       _count++;
       return _count;
-    });
+    }).asBroadcastStream();
   }
 }

@@ -5,23 +5,29 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mvi/flutter_mvi.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class UiState{
+import 'bound_stream_builder.dart';
+
+abstract class UiState {
   const UiState();
 }
 
 abstract class UiEvent {}
 
 abstract class Binder<U extends UiState, E extends UiEvent> {
-  final Stream<U> Function(BuildContext context) _transformer;
+  final Transformer<U> transformer;
   final DisposableBucket bucket = DisposableBucket();
   final PublishSubject<E> _uiEvents = PublishSubject();
   late BuildContext context;
 
-  Binder(this._transformer);
+  Binder(this.transformer);
 
   /// Method that provides state to bounded widget
-  Widget stateBuilder(AsyncWidgetBuilder<U> builder) {
-    return StreamBuilder<U>(builder: builder, stream: _transformer(context));
+  Widget stateBuilder(BoundWidgetBuilder<U> builder) {
+    return BoundStreamBuilder<U>(
+      builder: builder,
+      stream: transformer.uiStateStream(context),
+      initialValue: transformer.initialUiState(context),
+    );
   }
 
   /// Binding feature side effect to listener function
@@ -54,7 +60,17 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
 
   void dispose() => bucket.dispose();
 
-  void add(E event){
+  void add(E event) {
     _uiEvents.sink.add(event);
   }
+}
+
+class Transformer<U extends UiState> {
+  final Stream<U> Function(BuildContext context) uiStateStream;
+  final U Function(BuildContext context) initialUiState;
+
+  Transformer({
+    required this.uiStateStream,
+    required this.initialUiState,
+  });
 }
