@@ -62,5 +62,11 @@ class _BoundStreamBuilderState<T> extends State<BoundStreamBuilder<T>> {
   }
 
   @override
+  void dispose() {
+    _unsubscribe();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => widget.build(context, value);
 }
