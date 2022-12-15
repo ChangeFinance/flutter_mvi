@@ -48,9 +48,11 @@ class _BoundStreamBuilderState<T> extends State<BoundStreamBuilder<T>> {
 
   void _subscribe() {
     _subscription = widget.stream.listen((T data) {
-      setState(() {
-        value = data;
-      });
+      if (mounted) {
+        setState(() {
+          value = data;
+        });
+      }
     });
   }
 
