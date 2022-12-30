@@ -17,16 +17,23 @@ abstract class Binder<U extends UiState, E extends UiEvent> {
   final Transformer<U> transformer;
   final DisposableBucket bucket = DisposableBucket();
   final PublishSubject<E> _uiEvents = PublishSubject();
-  late BuildContext context;
+  final BuildContext context;
+  U _lastState;
 
-  Binder(this.transformer);
+  Binder(this.context, this.transformer) : _lastState = transformer.initialUiState(context) {
+    bucket <=
+        transformer.uiStateStream(context).listen((state) {
+          _lastState = state;
+        });
+  }
 
   /// Method that provides state to bounded widget
-  Widget stateBuilder(BoundWidgetBuilder<U> builder) {
+  Widget stateBuilder(BoundWidgetBuilder<U> builder, {bool Function(U currentState, U nextState)? rebuildWhen = null}) {
     return BoundStreamBuilder<U>(
       builder: builder,
       stream: transformer.uiStateStream(context),
-      initialValue: transformer.initialUiState(context),
+      initialValue: _lastState,
+      rebuildWhen: rebuildWhen,
     );
   }
 

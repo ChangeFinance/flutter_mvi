@@ -8,8 +8,9 @@ import 'blank_screen.dart';
 class CounterBinder extends Binder<CounterUIState, CounterUIEvent> {
   CounterFeature counterFeature;
 
-  CounterBinder(this.counterFeature)
+  CounterBinder(BuildContext context, this.counterFeature)
       : super(
+          context,
           Transformer<CounterUIState>(
             uiStateStream: (context) => counterFeature.state.map((state) => stateTransformer(state)),
             initialUiState: (context) => stateTransformer(counterFeature.initialState),

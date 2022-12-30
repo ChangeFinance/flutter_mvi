@@ -16,7 +16,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final binder = CounterBinder(CounterFeature(CounterRepo(), service));
+    final binder = CounterBinder(context, CounterFeature(CounterRepo(), service));
 
     return MaterialApp(
       title: 'Flutter Mvi Demo',
