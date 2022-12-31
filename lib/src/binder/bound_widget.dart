@@ -20,7 +20,6 @@ class BoundWidgetState<U, E> extends State<BoundWidget> {
 
   @override
   Widget build(BuildContext context) {
-    widget.binder.context = context;
     return widget.builder(context, widget.binder);
   }
 

@@ -8,12 +8,14 @@ class BoundStreamBuilder<T> extends StatefulWidget {
   final Stream<T> stream;
   final T initialValue;
   final BoundWidgetBuilder<T> builder;
+  final bool Function(T, T)? rebuildWhen;
 
   const BoundStreamBuilder({
     Key? key,
     required this.stream,
     required this.initialValue,
     required this.builder,
+    this.rebuildWhen = null,
   }) : super(key: key);
 
   Widget build(BuildContext context, T value) => builder(context, value);
@@ -49,9 +51,12 @@ class _BoundStreamBuilderState<T> extends State<BoundStreamBuilder<T>> {
   void _subscribe() {
     _subscription = widget.stream.listen((T data) {
       if (mounted) {
-        setState(() {
-          value = data;
-        });
+        final canRebuild = widget.rebuildWhen?.call(value, data) ?? true;
+        if (canRebuild) {
+          setState(() {
+            value = data;
+          });
+        }
       }
     });
   }
