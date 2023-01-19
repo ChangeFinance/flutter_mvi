@@ -13,8 +13,8 @@ Easily extendable approach based on composition, use only what you need.
 Mvi consists of several simple element. Each element does only **one** job:
 * **Actor**: consumes *Action*, produces *Effect* .
 * **Reducer**: consumes *Effect* , produces *State*.
-* **SideEffectProducer**: consumes *Action*, *State* and *Effect*, produces optional side effect (one time event/ single live event).
-* **PostProcessor**: consumes *Action*, *State* and *Effect*, produces optional *Action*.
+* **SideEffectProducer**: consumes and *Effect*, produces optional side effect (one time event/ single live event).
+* **PostProcessor**: consumes *Effect*, produces optional *Action*.
 * **Bootstrapper**: produces initial *Action*.
 * **StreamListener**: subscribes to stream or streams and produces reactive *Action*s.
 * **Feature**: class that does all the cross-element communication under the hood.
