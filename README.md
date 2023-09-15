@@ -1,4 +1,4 @@
-# Flutter Mvi
+# Flutter MVI
 
 Mvi state management implementation for dart/flutter projects.
 Easily extendable approach based on composition, use only what you need.
