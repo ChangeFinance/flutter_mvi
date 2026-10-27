@@ -24,6 +24,14 @@ class BoundWidgetState<U, E> extends State<BoundWidget> {
   }
 
   @override
+  void didUpdateWidget(BoundWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.binder, widget.binder)) {
+      oldWidget.binder.dispose();
+    }
+  }
+
+  @override
   void dispose() {
     widget.binder.dispose();
     super.dispose();
