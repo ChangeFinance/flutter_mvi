@@ -18,7 +18,7 @@ class DisposableBucket {
         _disposableBucket.add(object);
       }
     } else if (object is StreamSubscription) {
-      if(_disposableBucket.contains(object) == false) {
+      if (_subscriptionBucket.contains(object) == false) {
         _subscriptionBucket.add(object);
       }
     }
@@ -31,6 +31,12 @@ class DisposableBucket {
     for (var disposable in _disposableBucket) {
       disposable.dispose();
     }
+
+    /// Let go of what was held: otherwise the bucket keeps every feature,
+    /// actor and subscription alive after disposal, and disposes them again on
+    /// every later call.
+    _subscriptionBucket.clear();
+    _disposableBucket.clear();
   }
 }
 
